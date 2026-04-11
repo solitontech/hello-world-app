@@ -8,7 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=4">
+    <!-- MSAL.js for Microsoft Authentication -->
+    <script src="https://unpkg.com/@azure/msal-browser@3/lib/msal-browser.js"></script>
 </head>
 <body>
     <div class="background-mesh"></div>
@@ -16,13 +18,16 @@
         <section class="hero" id="hero-section">
             <div class="card" id="main-card">
                 <h1 class="title">Hello Arjun</h1>
-                <p class="subtitle">Experience the future of minimalist design.</p>
+                <p class="subtitle" id="welcome-message">Sign in with Microsoft to experience the future of minimalist design.</p>
                 <div class="cta-container">
-                    <button class="primary-btn" id="explore-btn">Explore Now</button>
+                    <button class="primary-btn ms-btn" id="auth-btn">
+                        <svg class="ms-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21"><path fill="#f35325" d="M1 1h9v9H1z"/><path fill="#81bc06" d="M11 1h9v9h-9z"/><path fill="#05a6f0" d="M1 11h9v9H1z"/><path fill="#ffba08" d="M11 11h9v9h-9z"/></svg>
+                        Sign in with Microsoft
+                    </button>
                 </div>
             </div>
         </section>
     </main>
-    <script src="script.js"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>

@@ -13,3 +13,6 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+
+# Separate projects (own repos)
+flywheel/

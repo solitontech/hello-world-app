@@ -1,10 +1,10 @@
 // MSAL Configuration
 const msalConfig = {
     auth: {
-        // You'll need to replace this with your actual Microsoft Entra (Azure AD) Client ID
         clientId: "3550e79f-e2b6-4030-a06d-2c73a79ded9d",
         authority: "https://login.microsoftonline.com/06ed72e8-a419-4795-9eb3-5512cf1d3d98",
-        redirectUri: window.location.href, // Redirects back to the app
+        // Use origin only — query params / hash in href cause Azure AD redirect URI mismatch
+        redirectUri: window.location.origin,
     },
     cache: {
         cacheLocation: "sessionStorage",
@@ -18,13 +18,18 @@ try {
     msalInstance = new msal.PublicClientApplication(msalConfig);
 } catch (error) {
     console.error("MSAL Setup Error:", error);
-    alert("MSAL Instantiation Error: " + error.message);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
     const card = document.getElementById('main-card');
     const authBtn = document.getElementById('auth-btn');
     const welcomeMessage = document.getElementById('welcome-message');
+    const errorEl = document.getElementById('error-message');
+
+    function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+    }
 
     // Subtle parallax effect on card move
     document.addEventListener('mousemove', (e) => {
@@ -54,24 +59,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) {
         console.error("Auth init error:", error);
-        alert("MSAL Start Error: " + error.message);
+        showError(error.message);
     }
 
     // Login/Logout Button Click Handler
     authBtn.addEventListener('click', async () => {
         if (!msalInstance) {
-            alert("⚠️ Setup Error: MSAL did not initialize properly. Check if the MSAL script is blocked or failing to load.");
+            showError("MSAL did not initialize. Check if the script is being blocked.");
             return;
         }
 
         const currentAccounts = msalInstance.getAllAccounts();
 
         if (currentAccounts.length > 0) {
-            // Logout
+            // Logout — use popup to match the popup login flow
             try {
-                await msalInstance.logoutRedirect({
-                    postLogoutRedirectUri: window.location.href
+                await msalInstance.logoutPopup({
+                    postLogoutRedirectUri: window.location.origin
                 });
+                // Reset UI after popup closes
+                welcomeMessage.textContent = "Sign in with Microsoft to experience the future of minimalist design.";
+                authBtn.innerHTML = `
+                    <svg class="ms-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21"><path fill="#f35325" d="M1 1h9v9H1z"/><path fill="#81bc06" d="M11 1h9v9h-9z"/><path fill="#05a6f0" d="M1 11h9v9H1z"/><path fill="#ffba08" d="M11 11h9v9h-9z"/></svg>
+                    Sign in with Microsoft
+                `;
+                authBtn.style.background = "";
+                authBtn.style.boxShadow = "";
             } catch (error) {
                 console.error("Logout failed:", error);
             }
@@ -89,7 +102,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.error("Login failed:", error);
-                alert("Login Error: " + error.message);
+                // User_cancelled is not a real error — user just closed the popup
+                if (error.errorCode !== "user_cancelled") {
+                    showError(error.message);
+                }
             }
         }
     });

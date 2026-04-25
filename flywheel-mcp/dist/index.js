@@ -20,6 +20,7 @@ const BASE_URL = (process.env.FLYWHEEL_URL ?? "http://localhost:5500").replace(/
 const MODE = process.env.MCP_MODE ?? "stdio";
 const PORT = parseInt(process.env.PORT ?? "5501", 10);
 const API_KEY = process.env.MCP_API_KEY ?? "";
+const DEFAULT_USER = process.env.FLYWHEEL_USER ?? process.env.USER ?? process.env.USERNAME ?? "Team";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 async function api(path, options) {
     const res = await fetch(`${BASE_URL}${path}`, {
@@ -147,7 +148,7 @@ function createServer() {
     server.tool("submit_initiative_update", "Submit a status update note for a specific initiative.", {
         initiative_id: z.string().describe("The initiative UUID"),
         note: z.string().describe("The update note to submit"),
-        reviewer: z.string().default("Team").describe("Name of the person submitting the update"),
+        reviewer: z.string().default(DEFAULT_USER).describe("Name of the person submitting the update"),
     }, async ({ initiative_id, note, reviewer }) => {
         const result = await api(`/api/initiatives/${initiative_id}/updates`, {
             method: "POST",
@@ -160,7 +161,7 @@ function createServer() {
         mandate_id: z.string().describe("The mandate UUID"),
         status: z.enum(STATUS_VALUES).describe("New status for the mandate"),
         note: z.string().describe("Note explaining the status change"),
-        actor_name: z.string().default("Team").describe("Name of the person submitting the update"),
+        actor_name: z.string().default(DEFAULT_USER).describe("Name of the person submitting the update"),
     }, async ({ mandate_id, status, note, actor_name }) => {
         const result = await api(`/api/mandates/${mandate_id}/status-updates`, {
             method: "POST",

@@ -23,12 +23,16 @@ const MODE = process.env.MCP_MODE ?? "stdio";
 const PORT = parseInt(process.env.PORT ?? "5501", 10);
 const API_KEY = process.env.MCP_API_KEY ?? "";
 const DEFAULT_USER = process.env.FLYWHEEL_USER ?? process.env.USER ?? process.env.USERNAME ?? "Team";
+const INTERNAL_KEY = process.env.FLYWHEEL_INTERNAL_KEY ?? "";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function api<T = unknown>(path: string, options?: RequestInit): Promise<T> {
+  const authHeaders: Record<string, string> = INTERNAL_KEY
+    ? { Authorization: `Bearer ${INTERNAL_KEY}` }
+    : {};
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers: { "Content-Type": "application/json", ...authHeaders, ...options?.headers },
     ...options,
   });
   if (!res.ok) {
